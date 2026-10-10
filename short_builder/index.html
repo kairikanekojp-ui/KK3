@@ -1,0 +1,68 @@
+<html><body style="margin:0;background:#000"><canvas id="c" width="1080" height="1920"></canvas>
+<script src="map.js"></script><script>
+const W=1080,H=1920,c=document.getElementById('c'),x=c.getContext('2d');
+const IM={};['10','11','12','13','14'].forEach(k=>{IM[k]=new Image();IM[k].src='photos/p'+k+'.jpg'});
+window.ready=()=>Object.values(IM).every(i=>i.complete&&i.naturalWidth);
+const cl=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const eo=t=>1-Math.pow(1-cl(t),3);
+const back=t=>{t=cl(t);const s=1.7;return 1+(s+1)*Math.pow(t-1,3)+s*Math.pow(t-1,2)};
+function photo(k,fx,fy,z,blur=0,dark=0){const im=IM[k];let s=H/im.naturalHeight*z;
+ let dx=W/2-fx*s,dy=H/2-fy*s;dx=Math.min(0,Math.max(W-im.naturalWidth*s,dx));dy=Math.min(0,Math.max(H-im.naturalHeight*s,dy));
+ x.save();if(blur)x.filter=`blur(${blur}px)`;x.drawImage(im,dx,dy,im.naturalWidth*s,im.naturalHeight*s);x.restore();
+ if(dark){x.fillStyle=`rgba(0,0,0,${dark})`;x.fillRect(0,0,W,H)}}
+function T(s,px,py,size,col='#fff',sc=1,al=1,st=1){if(sc<=0.01||al<=0)return;x.save();x.globalAlpha=cl(al);x.translate(px,py);x.scale(sc,sc);
+ x.font=`bold ${size}px IPAGothic`;x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
+ if(st){x.lineWidth=size*0.22;x.strokeStyle='#000';x.strokeText(s,0,0);}x.fillStyle=col;x.fillText(s,0,0);x.restore()}
+const pop=(u,st)=>u<st?0:back((u-st)/0.28);
+function flash(u,d=0.12){if(u<d){x.fillStyle=`rgba(255,255,255,${1-u/d})`;x.fillRect(0,0,W,H)}}
+function rr(X,Y,w,h,r){x.beginPath();x.roundRect(X,Y,w,h,r)}
+// map projection
+const LON0=130.9,LON1=136.2,LAT0=33.0,LAT1=35.9;
+const mx=lo=>40+(lo-LON0)/(LON1-LON0)*1000, my=la=>560+(LAT1-la)/(LAT1-LAT0)*1000*0.83/Math.cos(34.5*Math.PI/180)*Math.cos(34.5*Math.PI/180)*1.21;
+const ROUTE=[[135.495,34.702],[135.19,34.68],[134.69,34.83],[133.92,34.666],[133.36,34.49],[133.08,34.40],[132.475,34.397],[132.302,34.312]];
+const SC=[ // [start,dur]
+ ['hook',0,1.7],['ticket',1.7,1.9],['map',3.6,3.4],['rules',7.0,2.4],['but',9.4,1.3],['ferry',10.7,2.7],['cal',13.4,3.2],['far',16.6,2.2],['end',18.8,3.4]];
+const TOTAL=22.2;
+function frame(t){x.clearRect(0,0,W,H);let sc=SC.find(s=>t>=s[1]&&t<s[1]+s[2])||SC[SC.length-1];const u=t-sc[1],d=sc[2];
+ switch(sc[0]){
+ case 'hook':{photo('13',1340,470,1.55-0.25*eo(u/0.5)+0.05*u);T('7,850円で',W/2,1240,150,'#ffd23f',pop(u,0.05));T('ここまで来た',W/2,1420,130,'#fff',pop(u,0.45));flash(u);break}
+ case 'ticket':{photo('10',1570,520,1.3,18,0.45);const k=eo(u/0.35);x.save();x.translate(W/2,860+(1-k)*900);x.rotate(-0.06*(1-k)-0.04);
+   rr(-430,-280,860,560,36);x.fillStyle='#fff8e6';x.fill();x.lineWidth=10;x.strokeStyle='#c8102e';x.stroke();
+   x.fillStyle='#c8102e';rr(-430,-280,860,120,{upperLeft:36,upperRight:36});x.fill();
+   x.font='bold 64px IPAGothic';x.textAlign='center';x.textBaseline='middle';x.fillStyle='#fff';x.fillText('秋の乗り放題パス',0,-220);
+   const n=Math.round(7850*eo((u-0.3)/0.7));x.fillStyle='#111';x.font='bold 190px IPAGothic';x.fillText('¥'+n.toLocaleString(),0,10);
+   x.font='bold 54px IPAGothic';x.fillStyle='#444';x.fillText('JR全線 3日間 乗り放題',0,180);x.restore();
+   T('これ1枚で',W/2,330,110,'#fff',pop(u,0.1));flash(u,0.08);break}
+ case 'map':{x.fillStyle='#0e2a47';x.fillRect(0,0,W,H);
+   for(const m of MAP){x.beginPath();m.p.forEach((q,i)=>i?x.lineTo(mx(q[0]),my(q[1])):x.moveTo(mx(q[0]),my(q[1])));x.closePath();
+     x.fillStyle=m.h?'#2f6e4f':'#2a4a3a';x.fill();x.strokeStyle='#5d8c74';x.lineWidth=2;x.stroke()}
+   const p=cl((u-0.35)/1.9);const pts=ROUTE.map(q=>[mx(q[0]),my(q[1])]);let L=[0];for(let i=1;i<pts.length;i++)L.push(L[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
+   const tgt=L[L.length-1]*eo(p);x.beginPath();x.moveTo(...pts[0]);let hx=pts[0][0],hy=pts[0][1];
+   for(let i=1;i<pts.length;i++){if(L[i]<=tgt){x.lineTo(...pts[i]);hx=pts[i][0];hy=pts[i][1]}else{const r=(tgt-L[i-1])/(L[i]-L[i-1]);hx=pts[i-1][0]+(pts[i][0]-pts[i-1][0])*r;hy=pts[i-1][1]+(pts[i][1]-pts[i-1][1])*r;x.lineTo(hx,hy);break}}
+   x.strokeStyle='#ffd23f';x.lineWidth=14;x.lineCap='round';x.setLineDash([]);x.stroke();
+   x.fillStyle='#fff';x.beginPath();x.arc(hx,hy,20,0,7);x.fill();
+   const dot=(q,lab,st,col,dy)=>{const s=pop(u,st);if(!s)return;x.fillStyle=col;x.beginPath();x.arc(mx(q[0]),my(q[1]),26*s,0,7);x.fill();T(lab,mx(q[0]),my(q[1])+dy,72,'#fff',s)};
+   dot(ROUTE[0],'大阪',0.1,'#ffd23f',-80);dot(ROUTE[7],'宮島口',2.2,'#e53935',100);
+   T('新幹線を使わず',W/2,300,90,'#fff',pop(u,0.1));T('在来線だけで',W/2,430,120,'#ffd23f',pop(u,0.4));
+   T('ひたすら西へ',W/2,1560,110,'#fff',pop(u,2.5));break}
+ case 'rules':{photo('11',1500,500,1.25+0.04*u,14,0.55);const it=[['新幹線','✕','#ff5252'],['特急','✕','#ff5252'],['普通・快速','◯','#69f0ae'],['宮島フェリー','？','#ffd23f']];
+   it.forEach((r,i)=>{const s=pop(u,0.15+i*0.42);if(!s)return;const y=560+i*250;x.save();x.globalAlpha=cl(s);rr(110,y-95,860,190,30);x.fillStyle='rgba(0,0,0,0.6)';x.fill();x.restore();
+     T(r[0],430,y,96,'#fff',s);T(r[1],830,y,150,r[2],s)});T('ルールは',W/2,330,110,'#fff',pop(u,0));break}
+ case 'but':{photo('11',1300+260*eo(u/d),480,1.45);T('実はこのパス…',W/2,1300,120,'#fff',pop(u,0.05));flash(u,0.08);break}
+ case 'ferry':{const z=1.2+0.35*eo(u/0.4);photo('12',1250,480,z);T('宮島フェリーにも',W/2,330,110,'#fff',pop(u,0.1));
+   const s=pop(u,0.55);if(s){x.save();x.translate(W/2+150,1250);x.rotate(-0.15);x.scale(s,s);x.lineWidth=16;x.strokeStyle='#e53935';rr(-260,-120,520,240,30);x.stroke();
+     x.font='bold 170px IPAGothic';x.textAlign='center';x.textBaseline='middle';x.fillStyle='#e53935';x.fillText('乗れる',0,8);x.restore()}
+   T('※宮島訪問税100円は別',W/2,1500,52,'#fff',1,cl((u-1.2)/0.3));flash(u,0.08);break}
+ case 'cal':{x.fillStyle='#fdf6e3';x.fillRect(0,0,W,H);T('10月',W/2,330,120,'#c8102e',pop(u,0),1,0);
+   const days='日月火水木金土';for(let i=0;i<7;i++){x.font='bold 46px IPAGothic';x.textAlign='center';x.fillStyle=i==0?'#c8102e':i==6?'#1565c0':'#333';x.fillText(days[i],120+i*140,500)}
+   const hp=cl((u-0.3)/1.2);for(let dd=1;dd<=31;dd++){const idx=dd+3;const col=idx%7,row=Math.floor(idx/7);const cx=120+col*140,cy=620+row*150;
+     const on=dd>=3&&dd<=18&&(dd-3)/15<=hp;if(on){x.fillStyle='#ffd23f';rr(cx-60,cy-60,120,120,20);x.fill()}
+     x.font='bold 64px IPAGothic';x.textAlign='center';x.textBaseline='middle';x.fillStyle=dd==18&&hp>=1?'#c8102e':'#222';x.fillText(dd,cx,cy)}
+   const s=pop(u,1.6);if(s){x.save();x.translate(120+0*140,620+3*150);x.scale(s,s);x.lineWidth=10;x.strokeStyle='#c8102e';x.beginPath();x.arc(0,0,82,0,7);x.stroke();x.restore()}
+   T('使えるのは10/18まで',W/2,1560,96,'#c8102e',pop(u,1.6),1,0);T('買えるのは10/16まで',W/2,1700,70,'#333',pop(u,2.1),1,0);break}
+ case 'far':{photo('14',1150+400*eo(u/d),480,1.3);T('3日あったら',W/2,330,100,'#fff',pop(u,0.05));T('どこまで行ける？',W/2,470,120,'#ffd23f',pop(u,0.35));flash(u,0.08);break}
+ case 'end':{photo('10',1450,520,1.6-0.45*eo(u/1.6));T('あなたなら',W/2,1180,100,'#fff',pop(u,0.4));T('どこへ行く？',W/2,1340,140,'#ffd23f',pop(u,0.7));
+   T('コメントで教えて',W/2,1520,64,'#fff',1,cl((u-1.4)/0.3));break}
+ }}
+window.frame=frame;window.TOTAL=TOTAL;window.SC=SC;
+</script></body></html>
