@@ -1,0 +1,33 @@
+<html><body style="margin:0;background:#000"><canvas id="c" width="1080" height="1920"></canvas>
+<script src="bay.js"></script><script src="lib.js"></script><script>
+// ショート2本目「お墓が、ない島」
+const SC=[['hook',0,1.8],['bay',1.8,3.2],['town',5.0,2.4],['why',7.4,2.6],['cross',10.0,3.2],['rec',13.2,2.4],['birth',15.6,2.2],['now',17.8,2.2],['end',20.0,2.8]];
+const TOTAL=22.8;
+const SFX={W:[1.8,5.0,7.4,10.0,13.2,15.6,17.8,20.0],P:[0.6,2.3,3.0,5.2,6.0,8.0,8.4,10.2,11.6,13.4,14.0,15.8,16.3,18.0,18.4,20.4,20.9],I:[0.05,6.4,12.4]};
+function frame(t){x.clearRect(0,0,W,H);let sc=SC.find(s=>t>=s[1]&&t<s[1]+s[2])||SC[SC.length-1];const u=t-sc[1],d=sc[2];
+ switch(sc[0]){
+ case 'hook':{photo('13',1340,470,1.6-0.3*eo(u/0.5)+0.05*u);T('この島には',W/2,1160,110,'#fff',pop(u,0.05));T('お墓が、ない',W/2,1340,150,'#ff5252',pop(u,0.55));flash(u);break}
+ case 'bay':{const [px,py]=bayMap(eo((u-0.4)/0.5));T('広島・宮島',W/2,300,100,'#fff',pop(u,0.1));
+   const s=pop(u,0.5);if(s){x.save();x.strokeStyle='#ffd23f';x.lineWidth=10;x.beginPath();x.arc(px(132.305),py(34.272),190*s,0,7);x.stroke();x.restore()}
+   T('宮島',px(132.305),py(34.272),80,'#fff',pop(u,0.6));T('人が暮らす島なのに',W/2,1580,90,'#fff',pop(u,1.2));break}
+ case 'town':{bg('#1b1f2a');T('ふつうの町',290,560,90,'#fff',pop(u,0.05));T('宮島',790,560,90,'#ffd23f',pop(u,0.2));
+   const s1=pop(u,0.2),s2=pop(u,0.5);x.save();x.globalAlpha=cl(s1);[[-90,0],[90,0],[0,40]].forEach(o=>grave(290+o[0]*1.2,1000+o[1],1.15*s1));x.restore();
+   if(s2){grave(790,1000,1.15*s2)}cross(790,930,120,pop(u,1.4));T('墓地がない',790,1260,80,'#ff5252',pop(u,1.4));
+   T('知ってた？',W/2,1560,90,'#fff',pop(u,1.8));break}
+ case 'why':{photo('11',1500+120*eo(u/d),480,1.35,10,0.45);T('なぜ？',W/2,520,170,'#ffd23f',pop(u,0.05));
+   T('島そのものが',W/2,1000,110,'#fff',pop(u,0.6));T('神として',W/2,1160,120,'#fff',pop(u,1.0));T('信仰されてきたから',W/2,1320,100,'#fff',pop(u,1.0));break}
+ case 'cross':{const [px,py]=bayMap(1);const p=eo((u-0.3)/1.1);
+   const a=[px(132.31),py(34.285)],b=[px(132.302),py(34.322)];const mx_=a[0]+(b[0]-a[0])*p,my_=a[1]+(b[1]-a[1])*p;
+   x.strokeStyle='#fff';x.lineWidth=12;x.setLineDash([26,18]);x.beginPath();x.moveTo(...a);x.lineTo(mx_,my_);x.stroke();x.setLineDash([]);
+   if(p>0.02){const ang=Math.atan2(b[1]-a[1],b[0]-a[0]);x.save();x.translate(mx_,my_);x.rotate(ang);x.fillStyle='#fff';x.beginPath();x.moveTo(30,0);x.lineTo(-22,-24);x.lineTo(-22,24);x.fill();x.restore()}
+   T('宮島',px(132.30),py(34.262),70,'#fff',1);T('対岸',b[0]+40,b[1]-70,80,'#ffd23f',pop(u,1.4));
+   T('亡くなった人は',W/2,300,96,'#fff',pop(u,0.1));T('海を渡った対岸で',W/2,1520,96,'#fff',pop(u,1.6));T('葬られた',W/2,1660,120,'#ffd23f',pop(u,2.0));break}
+ case 'rec':{bg('#2b2118');const k=eo(u/0.4);x.save();x.translate(W/2,960+(1-k)*400);x.rotate(0.03);x.fillStyle='#efe2c4';rr(-300,-480,600,900,12);x.fill();
+   x.fillStyle='#3a2a1a';x.font='bold 120px IPAGothic';x.textAlign='center';['夏','山','雑','談'].forEach((ch,i)=>x.fillText(ch,0,-300+i*150));x.restore();
+   T('江戸時代の記録にも',W/2,330,90,'#fff',pop(u,0.4));T('残っている',W/2,1600,100,'#ffd23f',pop(u,0.8));break}
+ case 'birth':{photo('14',1200+300*eo(u/d),480,1.35);T('生まれるのも',W/2,330,100,'#fff',pop(u,0.1));T('かつては島の外',W/2,480,120,'#ffd23f',pop(u,0.6));flash(u,0.08);break}
+ case 'now':{photo('12',1200,480,1.25+0.3*eo(u/0.5));T('そして今も',W/2,330,100,'#fff',pop(u,0.1));T('島に墓地はない',W/2,480,120,'#ff5252',pop(u,0.5));flash(u,0.08);break}
+ case 'end':{photo('10',1450,520,1.6-0.45*eo(u/1.6));T('知ってるけど、',W/2,1180,110,'#fff',pop(u,0.4));T('知らない。',W/2,1350,140,'#ffd23f',pop(u,0.9));break}
+ }}
+window.frame=frame;window.TOTAL=TOTAL;window.SFX=SFX;
+</script></body></html>

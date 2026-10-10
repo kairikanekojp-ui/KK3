@@ -1,4 +1,5 @@
 fr/
 chk_*.jpg
-out.mp4
+*.mp4
 *.wav
+sfx.json

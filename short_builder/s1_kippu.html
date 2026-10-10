@@ -23,6 +23,7 @@ const ROUTE=[[135.495,34.702],[135.19,34.68],[134.69,34.83],[133.92,34.666],[133
 const SC=[ // [start,dur]
  ['hook',0,1.7],['ticket',1.7,1.9],['map',3.6,3.4],['rules',7.0,2.4],['but',9.4,1.3],['ferry',10.7,2.7],['cal',13.4,3.2],['far',16.6,2.2],['end',18.8,3.4]];
 const TOTAL=22.2;
+const SFX={W:[1.7,3.6,7.0,9.4,10.7,13.4,16.6,18.8],P:[0.5,2.1,4.0,5.8,7.15,7.57,7.99,8.41,13.7,14.4,15.0,17.0,19.5],I:[0.05,11.25]};
 function frame(t){x.clearRect(0,0,W,H);let sc=SC.find(s=>t>=s[1]&&t<s[1]+s[2])||SC[SC.length-1];const u=t-sc[1],d=sc[2];
  switch(sc[0]){
  case 'hook':{photo('13',1340,470,1.55-0.25*eo(u/0.5)+0.05*u);T('7,850円で',W/2,1240,150,'#ffd23f',pop(u,0.05));T('ここまで来た',W/2,1420,130,'#fff',pop(u,0.45));flash(u);break}
@@ -64,5 +65,5 @@ function frame(t){x.clearRect(0,0,W,H);let sc=SC.find(s=>t>=s[1]&&t<s[1]+s[2])||
  case 'end':{photo('10',1450,520,1.6-0.45*eo(u/1.6));T('あなたなら',W/2,1180,100,'#fff',pop(u,0.4));T('どこへ行く？',W/2,1340,140,'#ffd23f',pop(u,0.7));
    T('コメントで教えて',W/2,1520,64,'#fff',1,cl((u-1.4)/0.3));break}
  }}
-window.frame=frame;window.TOTAL=TOTAL;window.SC=SC;
+window.frame=frame;window.TOTAL=TOTAL;window.SFX=SFX;window.SC=SC;
 </script></body></html>

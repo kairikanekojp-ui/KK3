@@ -1,0 +1,28 @@
+<html><body style="margin:0;background:#000"><canvas id="c" width="1080" height="1920"></canvas>
+<script src="lib.js"></script><script>
+// ショート3本目「この鳥居、海に埋まってない」
+const SC=[['hook',0,1.8],['sect',1.8,3.6],['weight',5.4,3.0],['box',8.4,3.2],['tall',11.6,2.4],['year',14.0,2.4],['end',16.4,2.8]];
+const TOTAL=19.2;
+const SFX={W:[1.8,5.4,8.4,11.6,14.0,16.4],P:[0.6,2.0,3.2,4.4,5.6,7.4,8.6,10.2,11.8,12.3,14.2,14.7,16.8,17.3],I:[0.05,6.6]};
+function water(){bg('#0d1b2a');x.fillStyle='#1e5f8c';x.fillRect(0,820,W,780);x.fillStyle='#6b4f2e';x.fillRect(0,1600,W,320);}
+function frame(t){x.clearRect(0,0,W,H);let sc=SC.find(s=>t>=s[1]&&t<s[1]+s[2])||SC[SC.length-1];const u=t-sc[1],d=sc[2];
+ switch(sc[0]){
+ case 'hook':{photo('13',1340,430,1.75-0.35*eo(u/0.5)+0.05*u);T('この鳥居',W/2,1160,110,'#fff',pop(u,0.05));T('海に埋まってない',W/2,1340,130,'#ffd23f',pop(u,0.55));flash(u);break}
+ case 'sect':{water();const s=pop(u,0.6);
+   // 杭と礎石
+   if(s){x.save();x.globalAlpha=cl(s);x.strokeStyle='#c9a46b';x.lineWidth=8;for(let i=0;i<9;i++){const xx=240+i*75;x.beginPath();x.moveTo(xx,1650);x.lineTo(xx,1880);x.stroke()}
+     x.fillStyle='#9e9e9e';rr(300,1600,180,50,8);x.fill();rr(600,1600,180,50,8);x.fill();x.restore()}
+   torii(W/2,1600,1.0);
+   T('断面にすると…',W/2,300,90,'#fff',pop(u,0.1));T('下は杭と礎石',W/2,1760,72,'#fff',pop(u,1.4));
+   T('その上に',W/2,470,100,'#fff',pop(u,2.4));T('のっているだけ',W/2,610,120,'#ffd23f',pop(u,2.6));break}
+ case 'weight':{water();torii(W/2,1600,1.0);const n=Math.round(60*eo((u-0.2)/1.0));
+   for(let i=0;i<3;i++){const ax=W/2-260+i*260,ay=1150+((u*300+i*90)%160);x.fillStyle='#ffd23f';x.beginPath();x.moveTo(ax,ay+60);x.lineTo(ax-40,ay);x.lineTo(ax+40,ay);x.fill()}
+   T('重さ 約'+n+'トン',W/2,330,120,'#ffd23f',pop(u,0.05));T('自分の重さで',W/2,1720,90,'#fff',pop(u,1.4));T('立っている',W/2,1840,90,'#fff',pop(u,1.6));break}
+ case 'box':{water();const z=1+0.9*eo(u/0.6);x.save();x.translate(W/2,820);x.scale(z,z);x.translate(-W/2,-820);torii(W/2,1600,1.0,cl((u-0.8)/1.2));x.restore();
+   T('上の箱の中に',W/2,300,100,'#fff',pop(u,0.2));T('石 約7トン',W/2,450,130,'#ffd23f',pop(u,1.0));T('これが重りになる',W/2,1650,96,'#fff',pop(u,1.8));break}
+ case 'tall':{photo('12',1300,450,1.2+0.25*eo(u/0.5));T('高さ',W/2,330,100,'#fff',pop(u,0.2));T('約16.6m',W/2,490,160,'#ffd23f',pop(u,0.6));flash(u,0.08);break}
+ case 'year':{photo('14',1250+300*eo(u/d),480,1.35);T('今の鳥居は',W/2,330,100,'#fff',pop(u,0.2));T('1875年から',W/2,480,130,'#ffd23f',pop(u,0.7));flash(u,0.08);break}
+ case 'end':{photo('10',1450,520,1.6-0.45*eo(u/1.6));T('知ってるけど、',W/2,1180,110,'#fff',pop(u,0.4));T('知らない。',W/2,1350,140,'#ffd23f',pop(u,0.9));break}
+ }}
+window.frame=frame;window.TOTAL=TOTAL;window.SFX=SFX;
+</script></body></html>
